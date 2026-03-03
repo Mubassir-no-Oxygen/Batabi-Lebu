@@ -1,3 +1,26 @@
+Batabi Lebu - Farmer Direct Market & Trade Platform
+
+Batabi Lebu is a web-based digital marketplace designed to connect farmers directly with buyers, eliminating middlemen and ensuring fair pricing. 
+
+SRS Doc: https://docs.google.com/document/d/1gVrlA0qDmR8kCZo9rLqhdAQdmpQzHeyE5q8hnH5nqbs/edit?tab=t.0
+
+Team Members:
+Mubassir Rahman
+(22301398)
+Torun Kumar Saha Tirtho 
+(22301427)
+Md. Mehedi Hasan Mollick
+(22299249)
+Proma rani das
+(21301407)
+
+**Tech stack description:**
+Backend: Laravel (PHP)
+Frontend: Blade 
+Database: MySQL
+
+
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
