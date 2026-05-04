@@ -31,7 +31,12 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label fw-semibold small">District</label>
+                        <label class="form-label fw-semibold small d-flex justify-content-between w-100">
+                            District
+                            <button type="button" id="btn-near-me" class="btn btn-sm btn-link p-0 text-success text-decoration-none" title="Find crops near me">
+                                <i class="bi bi-geo-alt-fill"></i> Near Me
+                            </button>
+                        </label>
                         <select name="district" id="filter-district" class="form-select">
                             <option value="">All Districts</option>
                             @foreach($districts as $d)
@@ -119,3 +124,76 @@
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('btn-near-me').addEventListener('click', function() {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser');
+            return;
+        }
+
+        const btn = this;
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+        btn.disabled = true;
+
+        navigator.geolocation.getCurrentPosition(function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            // Simplified coordinates for major Bangladesh districts
+            const districts = {
+                'Dhaka': { lat: 23.8103, lng: 90.4125 },
+                'Chittagong': { lat: 22.3569, lng: 91.7832 },
+                'Sylhet': { lat: 24.8949, lng: 91.8687 },
+                'Rajshahi': { lat: 24.3636, lng: 88.6241 },
+                'Khulna': { lat: 22.8456, lng: 89.5403 },
+                'Barisal': { lat: 22.7010, lng: 90.3535 },
+                'Rangpur': { lat: 25.7439, lng: 89.2752 },
+                'Mymensingh': { lat: 24.7471, lng: 90.4203 },
+                'Bogura': { lat: 24.8481, lng: 89.3730 },
+                'Comilla': { lat: 23.4607, lng: 91.1809 },
+                'Narayanganj': { lat: 23.6238, lng: 90.5000 },
+                'Gazipur': { lat: 23.9999, lng: 90.4203 }
+            };
+
+            let nearestDistrict = '';
+            let minDistance = Infinity;
+
+            for (const [name, coords] of Object.entries(districts)) {
+                const dLat = coords.lat - lat;
+                const dLng = coords.lng - lng;
+                const distance = Math.sqrt(dLat * dLat + dLng * dLng);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestDistrict = name;
+                }
+            }
+
+            const select = document.getElementById('filter-district');
+            let found = false;
+            
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value.toLowerCase().includes(nearestDistrict.toLowerCase())) {
+                    select.selectedIndex = i;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found) {
+                document.getElementById('crop-filter-form').submit();
+            } else {
+                alert('We auto-detected ' + nearestDistrict + ' but no active listings were found there.');
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        }, function(error) {
+            alert('Unable to retrieve your location');
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        });
+    });
+</script>
+@endpush
