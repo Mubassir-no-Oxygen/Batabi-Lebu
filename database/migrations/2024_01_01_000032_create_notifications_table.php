@@ -25,30 +25,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('notifications', function (Blueprint $table) {
-            $table->uuid('id')->primary(); // UUID for Laravel's built-in notification system
-
-            $table->foreignId('user_id')
-                  ->constrained('users')
-                  ->onDelete('cascade');
-
-            $table->string('type')
-                  ->comment('Dot-notation event type, e.g. order.accepted, advisory.critical');
-
-            $table->string('title');
-
-            $table->text('message');
-
-            $table->json('data')
-                  ->nullable()
-                  ->comment('JSON payload: links, IDs, action buttons, etc.');
-
-            $table->timestamp('read_at')
-                  ->nullable()
-                  ->comment('NULL = unread');
-
+            $table->uuid('id')->primary();
+            $table->string('type');
+            $table->morphs('notifiable');
+            $table->text('data');
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
-
-            $table->index(['user_id', 'read_at']); // Fast unread count queries
         });
     }
 
