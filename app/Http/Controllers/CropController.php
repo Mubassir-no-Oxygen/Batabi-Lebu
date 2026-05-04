@@ -8,6 +8,8 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Buyer;
+use App\Notifications\NewCropListingNotification;
 
 class CropController extends Controller
 {
@@ -54,7 +56,17 @@ class CropController extends Controller
             $validated['image'] = $request->file('image')->store('crops', 'public');
         }
 
-        $farmer->crops()->create($validated);
+        $crop = $farmer->crops()->create($validated);
+
+        // Notify all buyers in the same district
+        if ($farmer->district) {
+            $buyers = Buyer::where('district', $farmer->district)->get();
+            foreach ($buyers as $b) {
+                if ($b->user) {
+                    $b->user->notify(new NewCropListingNotification($crop));
+                }
+            }
+        }
 
         return redirect()->route('farmer.crops.index')
             ->with('success', 'Crop listing created successfully!');

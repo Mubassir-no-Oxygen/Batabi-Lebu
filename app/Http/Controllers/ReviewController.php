@@ -7,6 +7,7 @@ use App\Models\Review;
 use App\Models\Farmer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\ReviewReceivedNotification;
 
 class ReviewController extends Controller
 {
@@ -70,13 +71,16 @@ class ReviewController extends Controller
 
         $farmerUserId = $order->crop->farmer->user_id;
 
-        Review::create([
+        $review = Review::create([
             'order_id'    => $order->id,
             'reviewer_id' => Auth::id(),          // the buyer's user ID
             'reviewee_id' => $farmerUserId,        // the farmer's user ID
             'rating'      => $validated['rating'],
             'comment'     => $validated['comment'] ?? null,
         ]);
+
+        // Notify Farmer
+        $order->crop->farmer->user->notify(new ReviewReceivedNotification($review));
 
         return redirect()->route('buyer.orders.index')
             ->with('success', 'Thank you! Your review has been submitted.');

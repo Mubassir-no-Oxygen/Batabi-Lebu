@@ -9,6 +9,7 @@ use App\Http\Controllers\CropController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\NotificationController;
 
 // ─── Public Routes ────────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -22,6 +23,12 @@ Route::middleware('guest')->group(function () {
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+// ─── Notifications ─────────────────────────────────────────────
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+});
 // ─── Farmer Routes ────────────────────────────────────────────
 // Pending/rejected pages are accessible without 'farmer.approved' so farmers can see their status
 Route::middleware(['auth', 'role:farmer'])->group(function () {

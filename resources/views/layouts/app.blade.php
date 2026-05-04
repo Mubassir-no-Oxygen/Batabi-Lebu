@@ -233,6 +233,17 @@
                         </li>
                     @endif
 
+                    <li class="nav-item me-2">
+                        <a class="nav-link position-relative {{ request()->routeIs('notifications.*') ? 'active' : '' }}" href="{{ route('notifications.index') }}" title="Notifications">
+                            <i class="bi bi-bell fs-5"></i>
+                            @if(auth()->user()->unreadNotifications->count() > 0)
+                                <span class="position-absolute translate-middle badge rounded-pill bg-danger" style="top: 8px; right: -15px; font-size: 0.6rem;">
+                                    {{ auth()->user()->unreadNotifications->count() > 99 ? '99+' : auth()->user()->unreadNotifications->count() }}
+                                </span>
+                            @endif
+                        </a>
+                    </li>
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="userDropdown">
                             <i class="bi bi-person-circle"></i> {{ Str::limit(auth()->user()->name, 15) }}

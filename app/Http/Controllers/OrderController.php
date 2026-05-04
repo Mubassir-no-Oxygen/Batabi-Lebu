@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Crop;
 use App\Models\Order;
+use App\Notifications\NewOrderNotification;
+use App\Notifications\OrderStatusNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,7 +32,7 @@ class OrderController extends Controller
             return back()->with('error', 'You already have a pending order for this crop.');
         }
 
-        Order::create([
+        $order = Order::create([
             'buyer_id'           => $buyer->id,
             'crop_id'            => $crop->id,
             'requested_quantity' => $validated['requested_quantity'],
@@ -38,6 +40,9 @@ class OrderController extends Controller
             'note'               => $validated['note'] ?? null,
             'status'             => 'pending',
         ]);
+
+        // Notify Farmer
+        $crop->farmer->user->notify(new NewOrderNotification($order));
 
         return redirect()->route('buyer.orders.index')
             ->with('success', 'Order request submitted! Waiting for farmer response.');
@@ -73,6 +78,9 @@ class OrderController extends Controller
             'accepted_at' => now(),
         ]);
 
+        // Notify Buyer
+        $order->buyer->user->notify(new OrderStatusNotification($order));
+
         return back()->with('success', 'Order accepted successfully!');
     }
 
@@ -81,6 +89,10 @@ class OrderController extends Controller
     {
         $this->authorizeOrder($order);
         $order->update(['status' => 'rejected']);
+        
+        // Notify Buyer
+        $order->buyer->user->notify(new OrderStatusNotification($order));
+        
         return back()->with('success', 'Order rejected.');
     }
 
