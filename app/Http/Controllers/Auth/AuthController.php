@@ -52,8 +52,8 @@ class AuthController extends Controller
             'phone'    => 'required|string|max:20',
 
             // Farmer-specific fields
-            'farm_name'  => 'required_if:role,farmer|string|max:150',
-            'district'   => 'required_if:role,farmer|string|max:100',
+            'farm_name'  => 'nullable|required_if:role,farmer|string|max:150',
+            'district'   => 'nullable|required_if:role,farmer|string|max:100',
             'land_size'  => 'nullable|numeric|min:0',
 
             // Buyer-specific fields
